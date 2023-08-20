@@ -1,0 +1,35 @@
+version: "3.6"
+
+services:
+  mariadb:
+    container_name: spring-db
+    image: 'mariadb:11.0.2'
+    environment:
+      - 'MARIADB_DATABASE=mydatabase'
+      - 'MARIADB_ROOT_PASSWORD=verysecret'
+      - 'MARIADB_USER=myuser'
+      - 'MARIADB_PASSWORD=secret'
+    ports:
+      - "3306"
+    networks:
+      - working_time_checker_network
+  spring-app:
+    container_name: spring-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - mariadb
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://spring-db:3306/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - working_time_checker_network
+
+networks:
+  working_time_checker_network:
